@@ -40,44 +40,6 @@ resource "azurerm_linux_virtual_machine" "matebox" {
     sku       = "22_04-lts"
     version   = var.ubuntu_version
   }
-
-  provisioner "file" {
-    source      = "install-app.sh"
-    destination = "/tmp/install-app.sh"
-
-    connection {
-      type        = "ssh"
-      user        = var.admin_username
-      private_key = file(var.ssh_key_private)
-      host        = var.public_ip_dns
-    }
-  }
-
-  provisioner "file" {
-    source      = "app"
-    destination = "/tmp/app"
-
-    connection {
-      type        = "ssh"
-      user        = var.admin_username
-      private_key = file(var.ssh_key_private)
-      host        = var.public_ip_dns
-    }
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo chmod +x /tmp/install-app.sh",
-      "sudo /tmp/install-app.sh"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = var.admin_username
-      private_key = file(var.ssh_key_private)
-      host        = var.public_ip_dns
-    }
-  }
 }
 
 resource "azurerm_virtual_machine_extension" "main" {
@@ -89,8 +51,10 @@ resource "azurerm_virtual_machine_extension" "main" {
   auto_upgrade_minor_version = true
 
   settings = jsonencode({
-    commandToExecute = "sudo chmod +x /tmp/install-app.sh && sudo /tmp/install-app.sh"
+    fileUris         = ["https://raw.githubusercontent.com/Ramzes525/azure_task_12_deploy_app_with_vm_extention/main/install-app.sh"]
+    commandToExecute = "chmod +x install-app.sh && ./install-app.sh"
   })
+
   tags = {
     environment = "Production"
   }

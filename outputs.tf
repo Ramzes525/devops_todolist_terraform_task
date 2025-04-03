@@ -15,7 +15,7 @@ output "vm_name" {
 
 output "storage_account_id" {
   description = "The ID of the storage account"
-  value       = module.storage.storage_account_name
+  value       = module.storage.storage_account_id
 }
 
 output "subnet_id" {
